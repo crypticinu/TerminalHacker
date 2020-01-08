@@ -6,6 +6,9 @@ using UnityEngine;
 public class Hacker : MonoBehaviour
 {
 
+    string[] level1Passwords = { "books", "aisle", "books", "self", "password" };
+    string[] level2Passwords = { "prisoner", "handcuffs", "holster", "uniform", "arrest" };
+
     enum Screen
     {
         MainMenu,
@@ -15,7 +18,8 @@ public class Hacker : MonoBehaviour
 
     int _level;
 
-    Screen _currentScreen = Screen.MainMenu;
+    Screen _currentScreen;
+    string _password;
 
 
     // Start is called before the first frame update
@@ -26,6 +30,7 @@ public class Hacker : MonoBehaviour
 
     private void ShowMainMenu()
     {
+        _currentScreen = Screen.MainMenu;
         Terminal.ClearScreen();
         Terminal.WriteLine("Terminal Hacker The Game");
         Terminal.WriteLine("What would you like to hack?");
@@ -43,14 +48,24 @@ public class Hacker : MonoBehaviour
         {
             ShowMainMenu();
         }
-        else if (input == "1")
+        else if (_currentScreen == Screen.MainMenu)
         {
-            _level = 1;
-            StartGame();
+            RunMenu(input);
         }
-        else if (input == "2")
+        else if (_currentScreen == Screen.Password)
         {
-            _level = 2;
+            CheckPassword(input);
+        }
+      
+    }
+
+    private void RunMenu(string input)
+    {
+
+        bool isValidLevelNumber = (input == "1" || input == "2");
+        if (isValidLevelNumber)
+        {
+            _level = int.Parse(input);
             StartGame();
         }
         else if (input == "007")
@@ -62,14 +77,59 @@ public class Hacker : MonoBehaviour
             Terminal.WriteLine("Please select a valid menu option");
         }
     }
-
     private void StartGame()
     {
         _currentScreen = Screen.Password;
         Terminal.ClearScreen();
-        Terminal.WriteLine("You have selected level: " + _level);
-        Terminal.WriteLine("Enter Your Password:");
+        int index = 0;
+        switch (_level)
+        {
+            case 1:
+                index = UnityEngine.Random.Range(0, level1Passwords.Length);
+                _password = level1Passwords[index];
+                break;
+            case 2:
+                index = UnityEngine.Random.Range(0, level2Passwords.Length);
+                _password = level2Passwords[index];
+                break;
+            default:
+                break;
+        }
+        Terminal.WriteLine("Enter Your Password, hint: " + _password.Anagram());
+    }
+    private void CheckPassword(string input)
+    {
+        if (input == _password)
+        {
+            DisplayWinScreen();
+        }
+        else
+        {
+            Terminal.WriteLine("Wrong Password, Try Again");
 
+        }
+    }
+
+    private void DisplayWinScreen()
+    {
+        _currentScreen = Screen.Win;
+        Terminal.ClearScreen();
+        ShowLevelReward();
+    }
+
+    private void ShowLevelReward()
+    {
+        switch (_level)
+        {
+            case 1:
+                Terminal.WriteLine("Won Library Level");
+                break;
+            case 2:
+                Terminal.WriteLine("Won Police Station Level");
+                break;
+            default:
+                break;
+        }
     }
 }
 
